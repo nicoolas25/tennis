@@ -7,7 +7,7 @@ RSpec.describe "GenericWorker's serialize" do
         prepend GenericWorker
 
         def work(message)
-          message
+          message + (@before || 0)
         end
       end
     end
@@ -19,6 +19,22 @@ RSpec.describe "GenericWorker's serialize" do
     it "runs uses the serialize's loader to deserialize the message" do
       worker_class.serialize loader: ->(message) { message + 1 }
       expect(worker_class.new.work(1)).to eq 2
+    end
+
+    it "handles an object as loader" do
+      loader = Class.new do
+        def self.load(message)
+          message + 1
+        end
+      end
+      worker_class.serialize loader: loader
+      expect(worker_class.new.work(1)).to eq 2
+    end
+
+    it "deserializes before the before-filters" do
+      worker_class.serialize loader: ->(message) { message + 1 }
+      worker_class.before { |message| @before = message }
+      expect(worker_class.new.work(1)).to eq 4
     end
 
   end

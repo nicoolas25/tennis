@@ -13,7 +13,13 @@ module GenericWorker
 
   def _deserialize(message)
     loader = self.class._serializers[:loader]
-    instance_exec(message, &loader)
+    if loader.kind_of?(Proc)
+      instance_exec(message, &loader)
+    elsif loader.respond_to?(:load)
+      loader.load(message)
+    else
+      fail "Unexpected deserializer, it must be a Proc or respond to #load"
+    end
   end
 
   def _process_before_hooks(message)
@@ -43,6 +49,7 @@ module GenericWorker
     def serialize(loader:)
       _serializers[:loader] = loader
     end
+
 
     def _before_hooks
       @_before_hooks ||= []
