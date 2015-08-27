@@ -50,7 +50,6 @@ module GenericWorker
       _serializers[:loader] = loader
     end
 
-
     def _before_hooks
       @_before_hooks ||= []
     end
