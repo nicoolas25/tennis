@@ -1,63 +1,28 @@
 require "sneakers"
 
 module GenericWorker
-  def self.prepended(base)
+  def self.included(base)
     base.extend DSL
-    base.include Sneakers::Worker
-    base.from_queue base.name
-  end
+    base.const_set(:Worker, Class.new do
+      @@parent = base
 
-  def work(message)
-    deserialized_message = _deserialize(message)
-    _process_before_hooks(deserialized_message)
-    super(deserialized_message)
-  end
+      include Sneakers::Worker
 
-  protected
+      from_queue @@parent.name
 
-  def _serialize(message)
-    dumper = self.class._serializers[:dumper]
-    if dumper.kind_of?(Proc)
-      instance_exec(message, &dumper)
-    elsif dumper.respond_to?(:dump)
-      dumper.dump(message)
-    else
-      fail "Unexpected deserializer, it must be a Proc or respond to #load"
-    end
-  end
-
-  def _deserialize(message)
-    loader = self.class._serializers[:loader]
-    if loader.kind_of?(Proc)
-      instance_exec(message, &loader)
-    elsif loader.respond_to?(:load)
-      loader.load(message)
-    else
-      fail "Unexpected deserializer, it must be a Proc or respond to #load"
-    end
-  end
-
-  def _process_before_hooks(message)
-    self.class._before_hooks.each do |hook|
-      _execute_hook(hook, [message])
-    end
-  end
-
-  def _execute_hook(hook, arguments)
-    if hook.kind_of?(Proc)
-      instance_exec(*arguments, &hook)
-    else
-      __send__(hook, *arguments)
-    end
+      def work(message)
+        message = @@parent._deserialize(message)
+        @@parent._process_before_hooks(message, self)
+        instance_exec(message, &@@parent._work)
+      end
+    end)
   end
 
   module DSL
 
-    def before(symbol = nil, &block)
+    def before(&block)
       if block_given?
         _before_hooks << block
-      elsif symbol
-        _before_hooks << symbol
       end
     end
 
@@ -71,16 +36,47 @@ module GenericWorker
       end
     end
 
+    def work(&block)
+      @_work = block
+    end
+
     def execute(message)
-      worker = new
-      serialized_message = worker.__send__(:_serialize, message)
+      message = _serialize(message)
       if GenericWorker.async
-        publisher_opts = @queue_opts.slice(:exchange, :exchange_type)
+        publisher_opts = self::Worker.queue_opts.slice(:exchange, :exchange_type)
         publisher = Sneakers::Publisher.new(publisher_opts)
-        publisher.publish(serialized_message, to_queue: @queue_name)
+        publisher.publish(message, to_queue: self::Worker.queue_name)
         publisher.instance_variable_get(:@bunny).close
       else
-        worker.work(serialized_message)
+        self::Worker.new.work(message)
+      end
+    end
+
+    def _process_before_hooks(message, worker)
+      _before_hooks.each do |hook|
+        hook.call(message, worker)
+      end
+    end
+
+    def _serialize(message)
+      dumper = _serializers[:dumper]
+      if dumper.kind_of?(Proc)
+        dumper.call(message)
+      elsif dumper.respond_to?(:dump)
+        dumper.dump(message)
+      else
+        fail "Unexpected serializer, it must be a Proc or respond to #dump"
+      end
+    end
+
+    def _deserialize(message)
+      loader = _serializers[:loader]
+      if loader.kind_of?(Proc)
+        loader.call(message)
+      elsif loader.respond_to?(:load)
+        loader.load(message)
+      else
+        fail "Unexpected deserializer, it must be a Proc or respond to #load"
       end
     end
 
@@ -90,6 +86,10 @@ module GenericWorker
 
     def _serializers
       @_serializers ||= Hash.new(->(message){ message })
+    end
+
+    def _work
+      @_work ||= ->(_){ ack! }
     end
 
   end

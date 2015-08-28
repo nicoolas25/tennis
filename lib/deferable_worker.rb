@@ -4,16 +4,20 @@ require "generic_serializer"
 module DeferableWorker
   def self.included(base)
     base.extend DSL
-    base.prepend GenericWorker
-    base.serialize GenericSerializer.new
-  end
+    base.class_eval do
+      include GenericWorker
+      serialize GenericSerializer.new
 
-  def work(message)
-    receiver, method, arguments = message
-    result = receiver.__send__(method, *arguments)
-    instance_exec(result, &self.class._on_success)
-  rescue => exception
-    instance_exec(message, exception, &self.class._on_error)
+      work do |message|
+        begin
+          receiver, method, arguments = message
+          result = receiver.__send__(method, *arguments)
+          instance_exec(result, &base._on_success)
+        rescue => exception
+          instance_exec(exception, message, &base._on_error)
+        end
+      end
+    end
   end
 
   def defer
@@ -24,14 +28,24 @@ module DeferableWorker
     def initialize(worker_class, receiver)
       @worker_class = worker_class
       @receiver = receiver
-      @methods = receiver.methods(false).map(&:to_s)
+      _create_methods!
     end
 
-    def method_missing(name, *arguments, &block)
-      if @methods.include?(name.to_s)
-        @worker_class.execute([@receiver, name, arguments])
+    private
+
+    def _create_methods!
+      _methods.each do |method|
+        self.define_singleton_method(method) do |*arguments|
+          @worker_class.execute([@receiver, method, arguments])
+        end
+      end
+    end
+
+    def _methods
+      if @receiver.kind_of?(Class)
+        @receiver.methods(false).map(&:to_s)
       else
-        fail "Method '#{name}' isn't available on: #{receiver}"
+        @receiver.class.instance_methods(false).map(&:to_s)
       end
     end
   end

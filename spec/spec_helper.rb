@@ -1,6 +1,6 @@
 require "pry"
 require 'simplecov'
-SimpleCov.star
+SimpleCov.start
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

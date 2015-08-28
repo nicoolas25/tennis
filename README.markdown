@@ -22,17 +22,16 @@ using sneakers' `.from_queue` method.
 
 ``` ruby
 class MyClass
-  prepend GenericWorker
+  include GenericWorker
 
   before do
     puts "Before processing"
   end
 
-  def work(message)
+  work do |message|
     puts "Working with #{message}"
     ack!
   end
-
 end
 
 MyClass.execute("my class")
@@ -47,18 +46,17 @@ The dumper will be used when
 
 ``` ruby
 class MyClass
-  prepend GenericWorker
+  include GenericWorker
 
   serialize loader: ->(message){ JSON.parse(message) },
             dumper: ->(message){ JSON.generate(message) }
 
-  def work(message)
+  work |message|
     one, two = message
     puts "Message is serialized and deserialized correctly"
     puts "one: #{one}, two: #{two}"
     ack!
   end
-
 end
 
 MyClass.execute([1, "foo"])
@@ -68,11 +66,11 @@ MyClass.execute([1, "foo"])
 
 ``` ruby
 class MyClass
-  prepend GenericWorker
+  include GenericWorker
 
   serialize GenericSerializer.new
 
-  def work(message)
+  work |message|
     klass, active_record_object = message
     puts "Classes can be passed: #{klass.name} - #{klass.class}"
     puts "Active record object can be passed too: #{active_record_object}"

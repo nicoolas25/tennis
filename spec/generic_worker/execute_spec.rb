@@ -1,43 +1,27 @@
 require "generic_worker"
-require "support/worker_class"
+require "support/worker_helpers"
 
-RSpec.describe "GenericWorker's .execute class method" do
-  subject(:execute) do
-    worker_class.execute(1)
+RSpec.describe "GenericWorker's .execute class method", :generic_worker do
+  subject(:execute) { my_worker.execute(1) }
+
+  it "calls the work proc we defined" do
+    expect { execute }.to change { work_done? }.to(true)
   end
 
-  context "when async is turned off" do
-    before { GenericWorker.async = false }
+  it "serialize the content" do
+    my_worker.serialize dumper: ->(message){ message.to_s }
+    execute
+    expect(work_message).to eq("1")
+  end
 
-    it "calls the #work method" do
-      expect_any_instance_of(worker_class).to receive(:work).with(1)
-      execute
-    end
-
-    it "serialize the content" do
-      worker_class.serialize dumper: ->(message){ message.to_s }
-      expect_any_instance_of(worker_class).to receive(:work).with("1")
-      execute
-    end
-
-    it "handles an object as dumper" do
-      dumper = Class.new do
-        def self.dump(message)
-          message.to_s
-        end
+  it "handles an object as dumper" do
+    dumper = Class.new do
+      def self.dump(message)
+        message.to_s
       end
-      worker_class.serialize dumper
-      expect_any_instance_of(worker_class).to receive(:work).with("1")
-      execute
     end
-
-    it "serialize the content" do
-      worker_class.serialize dumper: ->(message){ message.to_s }
-      expect_any_instance_of(worker_class).to receive(:work).with("1")
-      execute
-    end
-
+    my_worker.serialize dumper
+    execute
+    expect(work_message).to eq("1")
   end
-
-  let(:worker_class) { Class.new(BeforeWorkerClass) }
 end
