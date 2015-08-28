@@ -15,6 +15,9 @@ using Ruby and RabbitMQ via the Sneakers gem.
 
 Those examples are what we wish to achieve.
 
+The name of the queue is the name of the class by default and can be reset
+using sneakers' `.from_queue` method.
+
 ### Hooks
 
 ``` ruby
@@ -81,6 +84,8 @@ MyClass.execute([String, User.find(1)])
 
 ### Helpers
 
+Any class method can be defered:
+
 ``` ruby
 class MyClass
   include DeferableWorker
@@ -92,4 +97,20 @@ end
 
 MyClass.defer.my_method(User.find(1))
 # => Running my method on <User#1 ...>
+```
+
+An ActiveRecord::Base instance can be the receiver if it has an `id`:
+
+``` ruby
+class MyModel < ActiveRecord::Base
+  include DeferableWorker
+
+  def my_method
+    puts "Running my method on #{self}"
+  end
+end
+
+instance = MyModel.find(1)
+instance.defer.my_method
+# => Running my method on <MyModel#1 ...>
 ```
