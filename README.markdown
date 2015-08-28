@@ -27,6 +27,7 @@ class MyClass
 
   def work(message)
     puts "Working with #{message}"
+    ack!
   end
 
 end
@@ -49,6 +50,7 @@ class MyClass
     one, two = message
     puts "Message is serialized and deserialized correctly"
     puts "one: #{one}, two: #{two}"
+    ack!
   end
 
 end
@@ -65,9 +67,10 @@ class MyClass
   serialize GenericSerializer.new
 
   def work(message)
-    class, active_record_object = message
-    puts "Classes can be passed: #{class.name} - #{class.class}"
+    klass, active_record_object = message
+    puts "Classes can be passed: #{klass.name} - #{klass.class}"
     puts "Active record object can be passed too: #{active_record_object}"
+    ack!
   end
 end
 
