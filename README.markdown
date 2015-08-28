@@ -119,3 +119,28 @@ instance = MyModel.find(1)
 instance.defer.my_method
 # => Running my method on <MyModel#1 ...>
 ```
+
+Handling errors and results for the deferred methods is via `on_error` and
+`on_success` keyword. You must return `ack!` or `reject!` here as in a
+Sneakers' `work` method.
+
+```
+class MyModel < ActiveRecord::Base
+  include DeferableWorker
+
+  on_error do |exception|
+    puts "I just saved the day handling a #{exception}"
+    reject!
+  end
+
+  def my_method
+    puts "Running my method on #{self}"
+    raise StandardError
+  end
+end
+
+instance = MyModel.find(1)
+instance.defer.my_method
+# => Running my method on <MyModel#1 ...>
+# => I just saved the day handling a StandardError
+```

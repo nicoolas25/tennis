@@ -12,8 +12,8 @@ RSpec.describe "DeferableWorker's defer feature" do
   end
 
   it "retrieve the right receiver" do
-    my_model.on_error { |exception| raise exception }
-    my_model.on_success { |method_result| Result[:value] = method_result }
+    my_model.on_error { |exception| raise exception ; reject! }
+    my_model.on_success { |method_result| Result[:value] = method_result ; ack! }
     defer_work
     expect(Result[:value]).to eq(6)
   end
