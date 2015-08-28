@@ -1,6 +1,10 @@
 This small library is intended to help creating asynchronous jobs
 using Ruby and RabbitMQ via the Sneakers gem.
 
+[![Build Status](https://travis-ci.org/nicoolas25/tennis.svg?branch=master)](https://travis-ci.org/nicoolas25/tennis)
+[![Code Climate](https://codeclimate.com/github/nicoolas25/tennis/badges/gpa.svg)](https://codeclimate.com/github/nicoolas25/tennis)
+[![Test Coverage](https://codeclimate.com/github/nicoolas25/tennis/badges/coverage.svg)](https://codeclimate.com/github/nicoolas25/tennis/coverage)
+
 ## Features
 
 - Hooks: `.before(symbol, &block)`
