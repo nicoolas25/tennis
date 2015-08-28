@@ -5,6 +5,7 @@ using Ruby and RabbitMQ via the Sneakers gem.
 
 - Hooks: `.before(symbol, &block)`
 - Serializers: `.serialize(loader:)`
+- Helpers for defering method calls: `object.defer.method(*arguments)`
 
 **Extra**
 
@@ -18,7 +19,7 @@ Those examples are what we wish to achieve.
 
 ``` ruby
 class MyClass
-  include GenericWorker
+  prepend GenericWorker
 
   before do
     puts "Before processing"
@@ -39,7 +40,7 @@ MyClass.execute("my class")
 
 ``` ruby
 class MyClass
-  include GenericWorker
+  prepend GenericWorker
 
   serialize loader: ->(message){ JSON.parse(message) },
             dumper: ->(message){ JSON.generate(message) }
@@ -59,7 +60,7 @@ MyClass.execute([1, "foo"])
 
 ``` ruby
 class MyClass
-  include GenericWorker
+  prepend GenericWorker
 
   serialize GenericSerializer.new
 
@@ -73,4 +74,19 @@ end
 MyClass.execute([String, User.find(1)])
 # => Classes can be passed: String - Class
 # => Active record object can be passed too: <User#1 ...>
+```
+
+### Helpers
+
+``` ruby
+class MyClass
+  include DeferableWorker
+
+  def self.my_method(user)
+    puts "Running my method on #{user}"
+  end
+end
+
+MyClass.defer.my_method(User.find(1))
+# => Running my method on <User#1 ...>
 ```
