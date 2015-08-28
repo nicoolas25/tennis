@@ -1,9 +1,7 @@
-class ActiveRecordMock
-  attr_reader :id
-
-  def initialize(id = nil)
-    @id = id || rand(100)
-  end
-
+ActiveRecordMock = Struct.new(:id) do
   def attributes ; end
+
+  def self.find(id)
+    new(id)
+  end
 end
