@@ -55,7 +55,7 @@ class MyClass
   serialize loader: ->(message){ JSON.parse(message) },
             dumper: ->(message){ JSON.generate(message) }
 
-  work |message|
+  work do |message|
     one, two = message
     puts "Message is serialized and deserialized correctly"
     puts "one: #{one}, two: #{two}"
@@ -74,7 +74,7 @@ class MyClass
 
   serialize GenericSerializer.new
 
-  work |message|
+  work do |message|
     klass, active_record_object = message
     puts "Classes can be passed: #{klass.name} - #{klass.class}"
     puts "Active record object can be passed too: #{active_record_object}"
@@ -124,7 +124,7 @@ Handling errors and results for the deferred methods is via `on_error` and
 `on_success` keyword. You must return `ack!` or `reject!` here as in a
 Sneakers' `work` method.
 
-```
+``` ruby
 class MyModel < ActiveRecord::Base
   include DeferableWorker
 
