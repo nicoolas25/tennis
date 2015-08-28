@@ -1,6 +1,16 @@
+require "sneakers"
+
 module GenericWorker
   def self.prepended(base)
     base.extend DSL
+    base.include Sneakers::Worker
+    base.from_queue base.name
+
+    base.class_eval do
+      def initialize(queue = nil, pool = nil, opts= {})
+        super(queue, pool, opts) unless opts.delete(:sync_work)
+      end
+    end
   end
 
   def work(message)
@@ -67,6 +77,17 @@ module GenericWorker
       end
     end
 
+    def execute(message)
+      if GenericWorker.async
+        publisher_opts = @queue_opts.slice(:exchange, :exchange_type)
+        publisher = Sneakers::Publisher.new(publisher_opts)
+        publisher.publish(message, to_queue: @queue_name)
+        publisher.instance_variable_get(:@bunny).close
+      else
+        new.work(message)
+      end
+    end
+
     def _before_hooks
       @_before_hooks ||= []
     end
@@ -76,4 +97,17 @@ module GenericWorker
     end
 
   end
+
+  public
+
+  def self.async
+    @async
+  end
+
+  def self.async=(boolean)
+    @async = boolean
+  end
+
+  async = true
+
 end
