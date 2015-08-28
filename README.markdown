@@ -42,6 +42,9 @@ MyClass.execute("my class")
 
 ### Serializers
 
+You can provide a Proc for the loader and/or the dumper keywords.
+The dumper will be used when
+
 ``` ruby
 class MyClass
   prepend GenericWorker
