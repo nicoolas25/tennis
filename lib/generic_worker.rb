@@ -11,7 +11,7 @@ module GenericWorker
       from_queue @@parent.name
 
       def work(message)
-        message = @@parent._deserialize(message)
+        message = @@parent._apply_serializer(:load, message)
         @@parent._process_before_hooks(message, self)
         instance_exec(message, &@@parent._work)
       end
@@ -28,11 +28,11 @@ module GenericWorker
 
     def serialize(object = nil, loader: nil,  dumper: nil)
       if object
-        _serializers[:loader] = object if object.respond_to?(:load)
-        _serializers[:dumper] = object if object.respond_to?(:dump)
+        _serializers[:load] = object if object.respond_to?(:load)
+        _serializers[:dump] = object if object.respond_to?(:dump)
       else
-        _serializers[:loader] = loader if loader
-        _serializers[:dumper] = dumper if dumper
+        _serializers[:load] = loader if loader
+        _serializers[:dump] = dumper if dumper
       end
     end
 
@@ -41,7 +41,7 @@ module GenericWorker
     end
 
     def execute(message)
-      message = _serialize(message)
+      message = _apply_serializer(:dump, message)
       if GenericWorker.async
         publisher_opts = self::Worker.queue_opts.slice(:exchange, :exchange_type)
         publisher = Sneakers::Publisher.new(publisher_opts)
@@ -58,25 +58,14 @@ module GenericWorker
       end
     end
 
-    def _serialize(message)
-      dumper = _serializers[:dumper]
-      if dumper.kind_of?(Proc)
-        dumper.call(message)
-      elsif dumper.respond_to?(:dump)
-        dumper.dump(message)
+    def _apply_serializer(serializer_kind, message)
+      serializer = _serializers[serializer_kind]
+      if serializer.kind_of?(Proc)
+        serializer.call(message)
+      elsif serializer.respond_to?(serializer_kind)
+        serializer.__send__(serializer_kind, message)
       else
-        fail "Unexpected serializer, it must be a Proc or respond to #dump"
-      end
-    end
-
-    def _deserialize(message)
-      loader = _serializers[:loader]
-      if loader.kind_of?(Proc)
-        loader.call(message)
-      elsif loader.respond_to?(:load)
-        loader.load(message)
-      else
-        fail "Unexpected deserializer, it must be a Proc or respond to #load"
+        fail "Unexpected (de)serializer, it must be a Proc or respond to ##{kind}"
       end
     end
 

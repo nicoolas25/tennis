@@ -4,18 +4,19 @@ require "generic_serializer"
 module DeferableWorker
   def self.included(base)
     base.extend DSL
-    base.class_eval do
-      include GenericWorker
-      serialize GenericSerializer.new
+    base.include GenericWorker
+    base.serialize GenericSerializer.new
+    define_work_broker(base)
+  end
 
-      work do |message|
-        begin
-          receiver, method, arguments = message
-          result = receiver.__send__(method, *arguments)
-          instance_exec(result, &base._on_success)
-        rescue => exception
-          instance_exec(exception, message, &base._on_error)
-        end
+  def self.define_work_broker(base)
+    base.work do |message|
+      begin
+        receiver, method, arguments = message
+        result = receiver.__send__(method, *arguments)
+        instance_exec(result, &base._on_success)
+      rescue => exception
+        instance_exec(exception, message, &base._on_error)
       end
     end
   end

@@ -13,8 +13,8 @@ RSpec.describe "DeferableWorker's prepending" do
 
   it "uses the GenericSerializer as serializer" do
     include_deferable_worker
-    expect(klass._serializers[:dumper]).to be_a(GenericSerializer)
-    expect(klass._serializers[:loader]).to be_a(GenericSerializer)
+    expect(klass._serializers[:dump]).to be_a(GenericSerializer)
+    expect(klass._serializers[:load]).to be_a(GenericSerializer)
   end
 
   let(:klass) { stub_const("MyClass", Class.new) }
