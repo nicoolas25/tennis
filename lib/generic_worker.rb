@@ -43,8 +43,9 @@ module GenericWorker
     def execute(message)
       message = _apply_serializer(:dump, message)
       if GenericWorker.async
-        publisher_opts = self::Worker.queue_opts.select do |k, _|
-          k == :exchange || k == :exchange_type
+        publisher_opts = self::Worker.queue_opts.select do |opt_name, _|
+          opt_name == :exchange ||
+          opt_name == :exchange_type
         end
         publisher = Sneakers::Publisher.new(publisher_opts)
         publisher.publish(message, to_queue: self::Worker.queue_name)

@@ -4,15 +4,14 @@ RSpec.shared_context "generic worker spec helpers", :generic_worker do
   let(:worker_class) { my_worker::Worker }
   let!(:my_worker) do
     stub_const("WorkIsDone", {})
-    stub_const("MyWorker", Class.new do
-      include GenericWorker
-
-      work do |message|
+    stub_const("MyWorker", Class.new).tap do |klass|
+      klass.include GenericWorker
+      klass.work do |message|
         WorkIsDone[:status] = :done
         WorkIsDone[:message] = message
         ack!
       end
-    end)
+    end
   end
 
   def work_done?
