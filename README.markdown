@@ -20,7 +20,7 @@ using Ruby and RabbitMQ via the Sneakers gem.
 Those examples are what we wish to achieve.
 
 The name of the queue is the name of the class by default and can be reset
-using sneakers' `.from_queue` method.
+using sneakers' `.from_queue` method of the `YourClass::Worker`'s class.
 
 ### Hooks
 

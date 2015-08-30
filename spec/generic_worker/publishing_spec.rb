@@ -11,8 +11,26 @@ RSpec.describe "GenericWorker's .execute", :generic_worker do
       allow(Sneakers::Publisher).to receive(:new).and_return(publisher)
     end
 
-    it "publish to a rabbitmq exchange" do
+    it "publishes to a rabbitmq exchange" do
       expect(publisher).to receive(:publish).with(1, to_queue: "MyWorker")
+      execute
+    end
+
+    it "passes the exchange option when creating the publisher" do
+      my_worker::Worker.from_queue my_worker.name, exchange: "custom_exchange"
+      expect(Sneakers::Publisher).to receive(:new) do |options|
+        expect(options).to include exchange: "custom_exchange"
+        publisher
+      end
+      execute
+    end
+
+    it "passes the exchange_type option when creating the publisher" do
+      my_worker::Worker.from_queue my_worker.name, exchange_type: :topic
+      expect(Sneakers::Publisher).to receive(:new) do |options|
+        expect(options).to include exchange_type: :topic
+        publisher
+      end
       execute
     end
   end
