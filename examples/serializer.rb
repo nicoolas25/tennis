@@ -8,14 +8,12 @@
 # address.
 #
 
+$LOAD_PATH.unshift("./lib")
+
 require "json"
+require "generic_worker"
 
-require_relative "../lib/generic_worker"
-
-GenericWorker.async = true
-
-Sneakers.configure(exchange: "example", workers: 1)
-Sneakers.logger.level = Logger::WARN
+require_relative "example"
 
 class SumWorker
   include GenericWorker
@@ -30,28 +28,10 @@ class SumWorker
   end
 end
 
-def start_client
+Example.new(__FILE__, SumWorker).run do
   array = Array.new(5) { 1 + rand(5) }
   print "Press enter to enqueue a random array..." ; gets
   puts "Sending #{array.inspect} to the #{SumWorker::Worker.queue_name} queue!"
   SumWorker.execute(array)
-  start_client
-rescue Interrupt
-  puts "Exiting the client"
 end
 
-require "optparse"
-
-options = {}
-OptionParser.new do |opts|
-  opts.banner = "Usage: examples/serializer.rb"
-  opts.on("-c", "--client", "Run the client") { options[:client] = true }
-  opts.on("-w", "--worker", "Run the worker") { options[:worker] = true }
-end.parse!
-
-if options[:client]
-  start_client
-elsif options[:worker]
-  require "sneakers/runner"
-  Sneakers::Runner.new([SumWorker::Worker]).run
-end
