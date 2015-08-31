@@ -86,8 +86,6 @@ module GenericWorker
 
   end
 
-  public
-
   def self.async
     @async
   end
