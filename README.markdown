@@ -46,7 +46,9 @@ MyClass.execute("my class")
 ### Serializers
 
 You can provide a Proc for the loader and/or the dumper keywords.
-The dumper will be used when
+The dumper will be used when calling `MyClass.execute(message)` receiving
+the `message` as argument. It should return a string. The loader will be
+used when the message is poped from the RabbitMQ queue.
 
 ``` ruby
 class MyClass
