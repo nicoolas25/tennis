@@ -1,13 +1,12 @@
-require "generic_worker"
 require "support/worker_helpers"
 require "support/publisher_mock"
 
-RSpec.describe "GenericWorker's .execute", :generic_worker do
+RSpec.describe "Tennis::Worker::Generic's .execute", :generic_worker do
   subject(:execute) { my_worker.execute(1) }
 
   context " when the async mode is on" do
     before do
-      GenericWorker.async = true
+      Tennis::Worker::Generic.async = true
       allow(Sneakers::Publisher).to receive(:new).and_return(publisher)
     end
 

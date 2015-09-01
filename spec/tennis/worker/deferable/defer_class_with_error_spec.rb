@@ -1,7 +1,6 @@
-require "deferable_worker"
 require "support/worker_helpers"
 
-RSpec.describe "DeferableWorker's defer feature that cause an error", :deferable_worker do
+RSpec.describe "Tennis::Worker::Deferable's defer feature that cause an error", :deferable_worker do
   # Those argument will cause an error
   let(:arguments) { [0] }
 

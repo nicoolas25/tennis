@@ -1,7 +1,6 @@
-require "generic_serializer"
 require "support/active_record_mock"
 
-RSpec.describe "GenericSerializer's #load method" do
+RSpec.describe "Tennis::Serializer::Generic's #load method" do
   subject(:load_call) do
     serializer.load(object)
   end
@@ -49,7 +48,7 @@ RSpec.describe "GenericSerializer's #load method" do
     end
   end
 
-  let(:serializer) { GenericSerializer.new }
+  let(:serializer) { Tennis::Serializer::Generic.new }
   let(:original_object) { [] }
   let(:object) { original_object.to_json }
 end

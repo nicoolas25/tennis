@@ -1,7 +1,5 @@
-require "generic_worker"
-
-RSpec.describe "GenericWorker's including" do
-  subject(:include_generic_worker) { klass.include GenericWorker }
+RSpec.describe "Tennis::Worker::Generic's including" do
+  subject(:include_generic_worker) { klass.include Tennis::Worker::Generic }
 
   it "creates a MyClass::Worker constant" do
     expect {

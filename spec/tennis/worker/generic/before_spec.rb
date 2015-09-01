@@ -1,7 +1,6 @@
-require "generic_worker"
 require "support/worker_helpers"
 
-RSpec.describe "GenericWorker's before", :generic_worker do
+RSpec.describe "Tennis::Worker::Generic's before", :generic_worker do
   subject(:execute) { my_worker.execute(1) }
 
   it "adds a .before class method" do

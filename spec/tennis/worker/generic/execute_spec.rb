@@ -1,7 +1,6 @@
-require "generic_worker"
 require "support/worker_helpers"
 
-RSpec.describe "GenericWorker's .execute class method", :generic_worker do
+RSpec.describe "Tennis::Worker::Generic's .execute class method", :generic_worker do
   subject(:execute) { my_worker.execute(1) }
 
   it "calls the work proc we defined" do

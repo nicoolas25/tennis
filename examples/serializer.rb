@@ -11,12 +11,12 @@
 $LOAD_PATH.unshift("./lib")
 
 require "json"
-require "generic_worker"
+require "tennis"
 
 require_relative "example"
 
 class SumWorker
-  include GenericWorker
+  include Tennis::Worker::Generic
 
   serialize loader: ->(message){ JSON.parse(message) },
             dumper: ->(message){ JSON.generate(message) }

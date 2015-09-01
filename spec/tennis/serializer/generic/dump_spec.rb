@@ -1,7 +1,6 @@
-require "generic_serializer"
 require "support/active_record_mock"
 
-RSpec.describe "GenericSerializer's #dump method" do
+RSpec.describe "Tennis::Serializer::Generic's #dump method" do
   subject(:dump_call) do
     serializer.dump(object)
   end
@@ -48,6 +47,6 @@ RSpec.describe "GenericSerializer's #dump method" do
     end
   end
 
-  let(:serializer) { GenericSerializer.new }
+  let(:serializer) { Tennis::Serializer::Generic.new }
   let(:object) { [] }
 end

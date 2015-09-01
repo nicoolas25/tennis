@@ -1,13 +1,11 @@
-require "deferable_worker"
-
-RSpec.describe "DeferableWorker's defer feature" do
+RSpec.describe "Tennis::Worker::Deferable's defer feature" do
   subject(:defer_work) do
     receiver.defer.__send__(method_name, *arguments)
   end
 
   before do
-    GenericWorker.async = false
-    my_model.include DeferableWorker
+    Tennis::Worker::Generic.async = false
+    my_model.include Tennis::Worker::Deferable
     allow(my_model).to receive(:find).with(1).and_return(receiver)
   end
 

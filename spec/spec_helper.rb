@@ -1,4 +1,5 @@
 require "pry"
+require "tennis"
 
 require 'simplecov'
 SimpleCov.start

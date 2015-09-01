@@ -10,12 +10,12 @@
 
 $LOAD_PATH.unshift("./lib")
 
-require "deferable_worker"
+require "tennis"
 
 require_relative "example"
 
 class Model
-  include DeferableWorker
+  include Tennis::Worker::Deferable
 
   attr_reader :id
 

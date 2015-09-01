@@ -20,7 +20,7 @@ class Example
   protected
 
   def configure_workers
-    GenericWorker.async = true
+    Tennis::Worker::Generic.async = true
     Sneakers.configure(exchange: "example", workers: 1)
     Sneakers.logger.level = Logger::WARN
   end
