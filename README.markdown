@@ -1,9 +1,10 @@
 This small library is intended to help creating asynchronous jobs
 using Ruby and RabbitMQ via the Sneakers gem.
 
-<a href="https://travis-ci.org/nicoolas25/tennis"><img src="https://travis-ci.org/nicoolas25/tennis.svg?branch=master" /></a>
-<a href="https://codeclimate.com/github/nicoolas25/tennis"><img src="https://codeclimate.com/github/nicoolas25/tennis/badges/gpa.svg" /></a>
-<a href="https://codeclimate.com/github/nicoolas25/tennis/coverage"><img src="https://codeclimate.com/github/nicoolas25/tennis/badges/coverage.svg" /></a>
+<a target="_blank" href="https://travis-ci.org/nicoolas25/tennis"><img src="https://travis-ci.org/nicoolas25/tennis.svg?branch=master" /></a>
+<a target="_blank" href="https://codeclimate.com/github/nicoolas25/tennis"><img src="https://codeclimate.com/github/nicoolas25/tennis/badges/gpa.svg" /></a>
+<a target="_blank" href="https://codeclimate.com/github/nicoolas25/tennis/coverage"><img src="https://codeclimate.com/github/nicoolas25/tennis/badges/coverage.svg" /></a>
+<a target="_blank" href="https://rubygems.org/gems/tennis-jobs"><img src="https://badge.fury.io/rb/tennis-jobs.svg" /></a>
 
 ## Features
 
