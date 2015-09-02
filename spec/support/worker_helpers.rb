@@ -1,5 +1,9 @@
 RSpec.shared_context "generic worker spec helpers", :generic_worker do
-  before { Tennis::Worker::Generic.async = false }
+  before do
+    Tennis.configure do |config|
+      config.async = false
+    end
+  end
 
   let(:worker_class) { my_worker::Worker }
   let!(:my_worker) do
@@ -24,7 +28,11 @@ RSpec.shared_context "generic worker spec helpers", :generic_worker do
 end
 
 RSpec.shared_context "deferable worker spec helpers", :deferable_worker do
-  before { Tennis::Worker::Generic.async = false }
+  before do
+    Tennis.configure do |config|
+      config.async = false
+    end
+  end
 
   subject(:defer_work) do
     receiver.defer.__send__(method_name, *arguments)

@@ -6,7 +6,7 @@ RSpec.describe "Tennis::Worker::Generic's .execute", :generic_worker do
 
   context " when the async mode is on" do
     before do
-      Tennis::Worker::Generic.async = true
+      Tennis.configure { |config| config.async = true }
       allow(Sneakers::Publisher).to receive(:new).and_return(publisher)
     end
 

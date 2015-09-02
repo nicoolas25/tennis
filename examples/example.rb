@@ -1,3 +1,4 @@
+require "logger"
 require "optparse"
 require "sneakers/runner"
 
@@ -20,9 +21,13 @@ class Example
   protected
 
   def configure_workers
-    Tennis::Worker::Generic.async = true
-    Sneakers.configure(exchange: "example", workers: 1)
-    Sneakers.logger.level = Logger::WARN
+    Tennis.configure do |config|
+      config.async = true
+      config.exchange = "example"
+      config.worker = 1
+      config.logger = Logger.new(STDOUT)
+      config.logger.level = Logger::WARN
+    end
   end
 
   def start_client(block, i = 1)

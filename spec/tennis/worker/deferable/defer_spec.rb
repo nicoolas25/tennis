@@ -4,7 +4,7 @@ RSpec.describe "Tennis::Worker::Deferable's defer feature" do
   end
 
   before do
-    Tennis::Worker::Generic.async = false
+    Tennis.configure { |config| config.async = false }
     my_model.include Tennis::Worker::Deferable
     allow(my_model).to receive(:find).with(1).and_return(receiver)
   end

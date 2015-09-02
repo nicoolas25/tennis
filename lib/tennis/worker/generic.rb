@@ -36,7 +36,7 @@ module Tennis
 
         def execute(message)
           message = _apply_serializer(:dump, message)
-          if Tennis::Worker::Generic.async
+          if Tennis.config.async
             publisher_opts = self::Worker.queue_opts.select do |opt_name, _|
               opt_name == :exchange ||
               opt_name == :exchange_type
@@ -50,17 +50,6 @@ module Tennis
         end
 
       end
-
-      def self.async
-        @async
-      end
-
-      def self.async=(boolean)
-        @async = boolean
-      end
-
-      async = true
-
     end
   end
 end
