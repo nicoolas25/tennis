@@ -5,3 +5,4 @@ branches:
   only:
     - master
 script: bundle exec rspec spec
+before_install: gem install bundler -v 1.10.5
