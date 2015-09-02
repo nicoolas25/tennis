@@ -24,7 +24,7 @@ class Example
     Tennis.configure do |config|
       config.async = true
       config.exchange = "example"
-      config.worker = 1
+      config.workers = 1
       config.logger = Logger.new(STDOUT)
       config.logger.level = Logger::WARN
     end
@@ -38,7 +38,7 @@ class Example
   end
 
   def start_worker
-    Sneakers::Runner.new([@klass::Worker]).run
+    Sneakers::Runner.new([@klass.worker]).run
   end
 
   def parse_options

@@ -16,7 +16,7 @@ RSpec.describe "Tennis::Worker::Generic's .execute", :generic_worker do
     end
 
     it "passes the exchange option when creating the publisher" do
-      my_worker::Worker.from_queue my_worker.name, exchange: "custom_exchange"
+      my_worker.worker.from_queue my_worker.name, exchange: "custom_exchange"
       expect(Sneakers::Publisher).to receive(:new) do |options|
         expect(options).to include exchange: "custom_exchange"
         publisher
@@ -25,7 +25,7 @@ RSpec.describe "Tennis::Worker::Generic's .execute", :generic_worker do
     end
 
     it "passes the exchange_type option when creating the publisher" do
-      my_worker::Worker.from_queue my_worker.name, exchange_type: :topic
+      my_worker.worker.from_queue my_worker.name, exchange_type: :topic
       expect(Sneakers::Publisher).to receive(:new) do |options|
         expect(options).to include exchange_type: :topic
         publisher

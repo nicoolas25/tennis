@@ -9,11 +9,10 @@ module Tennis
         base.extend BeforeHook
         base.extend Serialize
         base.extend DSL
-        base.const_set(:Worker, Class.new do
+        base.worker = Class.new do
           @@parent = base
 
           include Sneakers::Worker
-
           from_queue @@parent.name
 
           def work(message)
@@ -21,10 +20,12 @@ module Tennis
             @@parent._process_before_hooks(message, self)
             instance_exec(message, &@@parent._work)
           end
-        end)
+        end
       end
 
       module DSL
+
+        attr_accessor :worker
 
         def work(&block)
           @_work = block
@@ -37,15 +38,15 @@ module Tennis
         def execute(message)
           message = _apply_serializer(:dump, message)
           if Tennis.config.async
-            publisher_opts = self::Worker.queue_opts.select do |opt_name, _|
+            publisher_opts = worker.queue_opts.select do |opt_name, _|
               opt_name == :exchange ||
               opt_name == :exchange_type
             end
             publisher = Sneakers::Publisher.new(publisher_opts)
-            publisher.publish(message, to_queue: self::Worker.queue_name)
+            publisher.publish(message, to_queue: worker.queue_name)
             publisher.instance_variable_get(:@bunny).close
           else
-            self::Worker.new.work(message)
+            worker.new.work(message)
           end
         end
 
