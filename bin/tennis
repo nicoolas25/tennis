@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require "tennis"
+require "tennis/cli"
+
+Tennis::CLI.start

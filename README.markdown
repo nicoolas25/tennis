@@ -16,6 +16,38 @@ using Ruby and RabbitMQ via the Sneakers gem.
 
 - A `GenericSerializer` handling classes and ActiveRecord objects
 
+## Configuration
+
+The background job require a group of processes to handle the tasks you want to
+do asynchronously. Tennis uses YAML configuration file in order to launch thoses
+processes.
+
+``` yaml
+# tennis.conf.yml
+group1:
+  exchange: "default"
+  workers: 1
+  classes:
+    - "Scope::MyClass"
+    - "Scope::Model"
+group2:
+  exchange: "important"
+  workers: 10
+  classes:
+    - "Only::ImportantWorker"
+```
+
+Here we see two groups of worker. Each group can be launch with the `tennis`
+command:
+
+    $ bundle exec tennis group1
+
+The `workers` options is directly given to sneakers, it will determine the
+number of subprocesses that will handle the messages, the level of parallelism.
+
+The classes are the classes that will receive your `execute` or `defer` calls
+but we'll see that later...
+
 ## Examples
 
 Those examples are what we wish to achieve.

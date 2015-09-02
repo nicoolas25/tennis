@@ -1,0 +1,6 @@
+test_group:
+  exchange: "test"
+  workers: 2
+  classes:
+    - "MyClass1"
+    - "MyClass2"
