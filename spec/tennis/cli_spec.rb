@@ -16,6 +16,20 @@ RSpec.describe Tennis::CLI do
       expect(Tennis.config.workers).to eq 2
     end
 
+    it "extracts options from the classes to run" do
+      MyClass1.set_option :handler, MyClass2
+      start
+      expect(Tennis.config.sneakers_options).to eq({
+        handler: MyClass2
+      })
+    end
+
+    it "fails if there is different options in the group's classes" do
+      MyClass1.set_option :handler, MyClass2
+      MyClass2.set_option :handler, MyClass1
+      expect { start }.to raise_error(RuntimeError)
+    end
+
     it "find the right classes to run" do
       expect(Sneakers::Runner)
         .to receive(:new)

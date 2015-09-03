@@ -32,7 +32,7 @@ module Tennis
 
     def start
       do_require
-      configure_sneakers
+      configure_tennis
       start_group
     end
 
@@ -42,23 +42,40 @@ module Tennis
       @options[:require].each { |path| require path } if @options[:require]
     end
 
-    def configure_sneakers
+    def configure_tennis
       Tennis.configure do |config|
         config.async = true
         config.exchange = group["exchange"]
         config.workers = group["workers"].to_i
         config.logger = Logger.new(STDOUT)
         config.logger.level = Logger::WARN
+        config.sneakers_options = sneakers_options
+      end
+    end
+
+    def sneakers_options
+      classes.map(&:options).each_with_object({}) do |options, all_options|
+        merge_options(all_options, options)
+      end
+    end
+
+    def merge_options(target, options)
+      options.each do |name, value|
+        if target[name].nil?
+          target[name] = value
+        elsif target[name] != value
+          fail "Workers shouldn't have different '#{name}' options"
+        end
       end
     end
 
     def start_group
-      Sneakers::Runner.new(classes).run
+      Sneakers::Runner.new(classes.map(&:worker)).run
     end
 
     def classes
-      group["classes"].map do |name|
-        Object.const_get(name).worker
+      @classes ||= group["classes"].map do |name|
+        Object.const_get(name)
       end
     end
 

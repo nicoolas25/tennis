@@ -4,10 +4,12 @@ module Tennis
 
       autoload :BeforeHook, "tennis/worker/generic/before_hook"
       autoload :Serialize,  "tennis/worker/generic/serialize"
+      autoload :Options,    "tennis/worker/generic/options"
 
       def self.included(base)
         base.extend BeforeHook
         base.extend Serialize
+        base.extend Options
         base.extend DSL
         base.worker = Class.new do
           @@parent = base

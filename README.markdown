@@ -48,12 +48,38 @@ number of subprocesses that will handle the messages, the level of parallelism.
 The classes are the classes that will receive your `execute` or `defer` calls
 but we'll see that later...
 
+Also it is possible to add options directly in your workers:
+
+``` ruby
+module WorkerHelpers
+  BeforeFork = -> { ActiveRecord::Base.connection_pool.disconnect! rescue nil }
+  AfterFork = -> { ActiveRecord::Base.establish_connection }
+end
+
+class MyClass
+  include GenericWorker
+
+  set_option :before_fork, WorkerHelpers::BeforeFork
+  set_option :after_fork, WorkerHelpers::AfterFork
+  set_option :handler, Sneakers::Handlers::MaxretryWithoutErrors
+
+  work do |message|
+    MyActiveRecordModel.create(message: message)
+  end
+end
+```
+
+In this example I use constants to store the Proc options. This is because
+having different options for the workers of a same group isn't possible. By
+using this constant, I can have another worker with those same options and put
+it in the same group.
+
 ## Examples
 
 Those examples are what we wish to achieve.
 
 The name of the queue is the name of the class by default and can be reset
-using sneakers' `.from_queue` method of the `YourClass::Worker`'s class.
+using sneakers' `YourClass.worker.from_queue` method.
 
 ### Hooks
 
