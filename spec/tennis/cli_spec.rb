@@ -51,6 +51,19 @@ RSpec.describe Tennis::CLI do
       end
     end
 
+    context "with the -r option" do
+      before { stub_const("RequireFile", {}) }
+
+      it "executes some code" do
+        start
+        expect(RequireFile[:required]).to eq true
+      end
+
+      let(:argv) do
+        [ "-r", "./spec/support/require_me" ] + super()
+      end
+    end
+
     let!(:classes) do
       [
         stub_const("MyClass1", build_class),
