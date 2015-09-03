@@ -38,6 +38,19 @@ RSpec.describe Tennis::CLI do
       start
     end
 
+    context "with -x option" do
+      before { stub_const("ExecuteCode", {}) }
+
+      it "executes some code" do
+        start
+        expect(ExecuteCode[:done]).to eq true
+      end
+
+      let(:argv) do
+        [ "-x", "ExecuteCode[:done] = true" ] + super()
+      end
+    end
+
     let!(:classes) do
       [
         stub_const("MyClass1", build_class),

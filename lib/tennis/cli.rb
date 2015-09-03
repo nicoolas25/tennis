@@ -21,6 +21,10 @@ module Tennis
           options[:require] ||= []
           options[:require] << path
         end
+        opts.on("-x", "--execute CODE", "Execute code before starting") do |code|
+          options[:execute] ||= []
+          options[:execute] << code
+        end
       end.parse!
       options[:group] = ARGV.first
       new(options).start
@@ -32,6 +36,7 @@ module Tennis
 
     def start
       do_require
+      execute_code
       configure_tennis
       start_group
     end
@@ -39,7 +44,13 @@ module Tennis
     private
 
     def do_require
-      @options[:require].each { |path| require path } if @options[:require]
+      return unless requires = @options[:require]
+      requires.each { |path| require path } if @options[:require]
+    end
+
+    def execute_code
+      return unless codes = @options[:execute]
+      codes.each { |code| eval code }
     end
 
     def configure_tennis
