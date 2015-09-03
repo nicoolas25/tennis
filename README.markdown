@@ -45,7 +45,7 @@ command:
 The `workers` options is directly given to sneakers, it will determine the
 number of subprocesses that will handle the messages, the level of parallelism.
 
-The classes are the classes that will receive your `execute` or `defer` calls
+The classes are the classes that will receive your `send_work` or `defer` calls
 but we'll see that later...
 
 Also it is possible to add options directly in your workers:
@@ -97,7 +97,7 @@ class MyClass
   end
 end
 
-MyClass.execute("my class")
+MyClass.send_work("my class")
 # => Before processing
 # => Working with my class
 ```
@@ -105,7 +105,7 @@ MyClass.execute("my class")
 ### Serializers
 
 You can provide a Proc for the loader and/or the dumper keywords.
-The dumper will be used when calling `MyClass.execute(message)` receiving
+The dumper will be used when calling `MyClass.send_work(message)` receiving
 the `message` as argument. It should return a string. The loader will be
 used when the message is poped from the RabbitMQ queue.
 
@@ -124,7 +124,7 @@ class MyClass
   end
 end
 
-MyClass.execute([1, "foo"])
+MyClass.send_work([1, "foo"])
 # => Message is serialized and deserialized correctly
 # => one: 1, two: foo
 ```
@@ -143,7 +143,7 @@ class MyClass
   end
 end
 
-MyClass.execute([String, User.find(1)])
+MyClass.send_work([String, User.find(1)])
 # => Classes can be passed: String - Class
 # => Active record object can be passed too: <User#1 ...>
 ```

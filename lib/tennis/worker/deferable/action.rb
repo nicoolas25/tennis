@@ -10,7 +10,7 @@ class Tennis::Worker::Deferable::Action
   def _create_methods!
     _methods.each do |method|
       self.define_singleton_method(method) do |*arguments|
-        @worker_class.execute([@receiver, method, arguments])
+        @worker_class.send_work([@receiver, method, arguments])
       end
     end
   end

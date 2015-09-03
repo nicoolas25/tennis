@@ -1,15 +1,15 @@
 require "support/worker_helpers"
 
-RSpec.describe "Tennis::Worker::Generic's .execute class method", :generic_worker do
-  subject(:execute) { my_worker.execute(1) }
+RSpec.describe "Tennis::Worker::Generic's .send_work class method", :generic_worker do
+  subject(:send_work) { my_worker.send_work(1) }
 
   it "calls the work proc we defined" do
-    expect { execute }.to change { work_done? }.to(true)
+    expect { send_work }.to change { work_done? }.to(true)
   end
 
   it "serialize the content" do
     my_worker.serialize dumper: ->(message){ message.to_s }
-    execute
+    send_work
     expect(work_message).to eq("1")
   end
 
@@ -20,7 +20,7 @@ RSpec.describe "Tennis::Worker::Generic's .execute class method", :generic_worke
       end
     end
     my_worker.serialize dumper
-    execute
+    send_work
     expect(work_message).to eq("1")
   end
 end

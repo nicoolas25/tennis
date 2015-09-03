@@ -1,7 +1,7 @@
 require "support/worker_helpers"
 
 RSpec.describe "Tennis::Worker::Generic's serialize", :generic_worker do
-  subject(:execute) { my_worker.execute(1) }
+  subject(:send_work) { my_worker.send_work(1) }
 
   it "adds a .serialize class method" do
     expect(my_worker).to respond_to(:before)
@@ -9,7 +9,7 @@ RSpec.describe "Tennis::Worker::Generic's serialize", :generic_worker do
 
   it "runs uses the serialize's loader to deserialize the message" do
     my_worker.serialize loader: ->(message) { message + 1 }
-    execute
+    send_work
     expect(work_message).to eq(2)
   end
 
@@ -20,14 +20,14 @@ RSpec.describe "Tennis::Worker::Generic's serialize", :generic_worker do
       end
     end
     my_worker.serialize loader
-    execute
+    send_work
     expect(work_message).to eq(2)
   end
 
   it "deserializes before the before-filters" do
     my_worker.serialize loader: ->(message) { message + 1 }
     my_worker.before { |message| WorkIsDone[:before_message] = message }
-    execute
+    send_work
     expect(WorkIsDone[:before_message]).to eq(2)
   end
 end

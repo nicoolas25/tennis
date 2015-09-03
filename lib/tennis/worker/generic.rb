@@ -37,7 +37,7 @@ module Tennis
           @_work ||= ->(_){ ack! }
         end
 
-        def execute(message)
+        def send_work(message)
           message = _apply_serializer(:dump, message)
           if Tennis.config.async
             publisher_opts = worker.queue_opts.select do |opt_name, _|

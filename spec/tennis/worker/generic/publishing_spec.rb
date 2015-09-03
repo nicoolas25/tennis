@@ -1,8 +1,8 @@
 require "support/worker_helpers"
 require "support/publisher_mock"
 
-RSpec.describe "Tennis::Worker::Generic's .execute", :generic_worker do
-  subject(:execute) { my_worker.execute(1) }
+RSpec.describe "Tennis::Worker::Generic's .send_work", :generic_worker do
+  subject(:send_work) { my_worker.send_work(1) }
 
   context " when the async mode is on" do
     before do
@@ -12,7 +12,7 @@ RSpec.describe "Tennis::Worker::Generic's .execute", :generic_worker do
 
     it "publishes to a rabbitmq exchange" do
       expect(publisher).to receive(:publish).with(1, to_queue: "MyWorker")
-      execute
+      send_work
     end
 
     it "passes the exchange option when creating the publisher" do
@@ -21,7 +21,7 @@ RSpec.describe "Tennis::Worker::Generic's .execute", :generic_worker do
         expect(options).to include exchange: "custom_exchange"
         publisher
       end
-      execute
+      send_work
     end
 
     it "passes the exchange_type option when creating the publisher" do
@@ -30,7 +30,7 @@ RSpec.describe "Tennis::Worker::Generic's .execute", :generic_worker do
         expect(options).to include exchange_type: :topic
         publisher
       end
-      execute
+      send_work
     end
   end
 

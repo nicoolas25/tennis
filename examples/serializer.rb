@@ -32,6 +32,6 @@ Example.new(__FILE__, SumWorker).run do
   array = Array.new(5) { 1 + rand(5) }
   print "Press enter to enqueue a random array..." ; gets
   puts "Sending #{array.inspect} to the #{SumWorker::Worker.queue_name} queue!"
-  SumWorker.execute(array)
+  SumWorker.send_work(array)
 end
 
