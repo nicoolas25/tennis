@@ -14,7 +14,7 @@ using Ruby and RabbitMQ via the Sneakers gem.
 
 **Extra**
 
-- A `GenericSerializer` handling classes and ActiveRecord objects
+- A `Tennis::Serializer::Generic` handling classes and ActiveRecord objects
 
 ## Configuration
 
@@ -57,7 +57,7 @@ module WorkerHelpers
 end
 
 class MyClass
-  include GenericWorker
+  include Tennis::Worker::Generic
 
   set_option :before_fork, WorkerHelpers::BeforeFork
   set_option :after_fork, WorkerHelpers::AfterFork
@@ -79,13 +79,13 @@ it in the same group.
 Those examples are what we wish to achieve.
 
 The name of the queue is the name of the class by default and can be reset
-using sneakers' `YourClass.worker.from_queue` method.
+using `set_option :queue_name, "your-queue-name"`.
 
 ### Hooks
 
 ``` ruby
 class MyClass
-  include GenericWorker
+  include Tennis::Worker::Generic
 
   before do
     puts "Before processing"
@@ -111,7 +111,7 @@ used when the message is poped from the RabbitMQ queue.
 
 ``` ruby
 class MyClass
-  include GenericWorker
+  include Tennis::Worker::Generic
 
   serialize loader: ->(message){ JSON.parse(message) },
             dumper: ->(message){ JSON.generate(message) }
@@ -131,9 +131,9 @@ MyClass.send_work([1, "foo"])
 
 ``` ruby
 class MyClass
-  include GenericWorker
+  include Tennis::Worker::Generic
 
-  serialize GenericSerializer.new
+  serialize Tennis::Serializer::Generic.new
 
   work do |message|
     klass, active_record_object = message
@@ -154,7 +154,7 @@ Any class method can be defered:
 
 ``` ruby
 class MyClass
-  include DeferableWorker
+  include Tennis::Worker::Deferable
 
   def self.my_method(user)
     puts "Running my method on #{user}"
@@ -169,7 +169,7 @@ An ActiveRecord::Base instance can be the receiver if it has an `id`:
 
 ``` ruby
 class MyModel < ActiveRecord::Base
-  include DeferableWorker
+  include Tennis::Worker::Deferable
 
   def my_method
     puts "Running my method on #{self}"
@@ -187,7 +187,7 @@ Sneakers' `work` method.
 
 ``` ruby
 class MyModel < ActiveRecord::Base
-  include DeferableWorker
+  include Tennis::Worker::Deferable
 
   on_error do |exception|
     puts "I just saved the day handling a #{exception}"
