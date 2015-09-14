@@ -1,11 +1,10 @@
 require "thread"
 
 require "tennis/actor"
+require "tennis/exceptions"
 require "tennis/worker"
 
 module Tennis
-  class Shutdown < StandardError ; end
-
   class WorkerPool
     include Actor
 

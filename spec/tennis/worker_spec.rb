@@ -17,6 +17,16 @@ RSpec.describe Tennis::Worker do
       work
     end
 
+    it "acks the task" do
+      expect(task).to receive(:ack)
+      work
+    end
+
+    it "notifies the pool that the work is done" do
+      expect(pool).to receive(:work_done).with(task)
+      work
+    end
+
     context "when the worker id is defined" do
       before { instance.worker_id = 123 }
 
@@ -27,6 +37,32 @@ RSpec.describe Tennis::Worker do
         end
         work
       end
+    end
+
+    context "when an exception is raised during the task.execution" do
+      before do
+        allow(task).to receive(:execute).and_raise(exception)
+      end
+
+      it "raise the exception" do
+        expect { work }.to raise_error(exception)
+      end
+
+      it "still acks the task" do
+        expect(task).to receive(:ack)
+        work rescue nil
+      end
+
+      context "when a the exception is a Tennis::Shutdown" do
+        let(:exception) { Tennis::Shutdown }
+
+        it "doesn't ack the task" do
+          expect(task).to_not receive(:ack)
+          work rescue nil
+        end
+      end
+
+      let(:exception) { StandardError }
     end
   end
 

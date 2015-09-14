@@ -1,4 +1,5 @@
 require "tennis/actor"
+require "tennis/exceptions"
 
 module Tennis
   class Worker
