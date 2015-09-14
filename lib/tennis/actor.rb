@@ -7,6 +7,9 @@ module Tennis
       def new_link(*args)
         new(*args)
       end
+
+      def trap_exit(*args)
+      end
     end
 
     module InstanceMethods

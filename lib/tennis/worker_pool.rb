@@ -19,7 +19,7 @@ module Tennis
       @size.times { start_worker }
     end
 
-    def stop(timeout = 30)
+    def stop(timeout: 30)
       done!
 
       if @pending_tasks.empty?
@@ -66,12 +66,12 @@ module Tennis
 
     private
 
-    def done?
-      @done
-    end
-
     def done!
       @done = true
+    end
+
+    def done?
+      @done
     end
 
     def plan_hard_shutdown(timeout)

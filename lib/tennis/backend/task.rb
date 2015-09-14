@@ -15,13 +15,13 @@ module Tennis
       end
 
       def ack
-        return unless acked?
+        return if acked?
         @backend.ack(self)
         @acked = true
       end
 
       def requeue
-        return unless acked?
+        return if acked?
         @backend.requeue(self)
         @acked = true
       end

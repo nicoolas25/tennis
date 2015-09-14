@@ -7,8 +7,6 @@ class FakePool
 end
 
 RSpec.describe Tennis::Worker do
-  subject(:instance) { described_class.new(pool) }
-
   describe do
     subject(:work) { instance.work(task) }
 
@@ -64,8 +62,10 @@ RSpec.describe Tennis::Worker do
 
       let(:exception) { StandardError }
     end
+
+    let(:task) { double(ack: true, execute: true) }
   end
 
+  let(:instance) { described_class.new(pool) }
   let(:pool) { FakePool.new }
-  let(:task) { double(ack: true, execute: true) }
 end

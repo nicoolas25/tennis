@@ -13,7 +13,7 @@ module Tennis
 
     def work(task)
       # Send the current working thread to the pool.
-      @pool.async.register_thread(worker_id, Thread.current)
+      register_working_thread
 
       ack = true
       begin
@@ -29,6 +29,16 @@ module Tennis
       end
 
       # Tell the pool that we've successfully done the job.
+      notifies_work_done(task)
+    end
+
+    private
+
+    def register_working_thread
+      @pool.async.register_thread(worker_id, Thread.current)
+    end
+
+    def notifies_work_done(task)
       @pool.async.work_done(task)
     end
 

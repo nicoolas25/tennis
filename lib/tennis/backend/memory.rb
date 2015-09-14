@@ -1,5 +1,8 @@
 require "thread"
 
+require "tennis/backend/abstract"
+require "tennis/backend/task"
+
 module Tennis
   module Backend
     class Memory < Abstract
