@@ -1,11 +1,10 @@
-require "celluloid"
-
+require "tennis/actor"
 require "tennis/fetcher"
 require "tennis/manager"
 
 module Tennis
   class Launcher
-    include Celluloid
+    include Actor
 
     attr_reader :manager, :fetcher
 

@@ -1,3 +1,5 @@
+$TESTING = true
+
 require "pry"
 require "tennis"
 

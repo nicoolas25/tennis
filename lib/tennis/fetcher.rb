@@ -1,8 +1,8 @@
-require "celluloid"
+require "tennis/actor"
 
 module Tennis
   class Fetcher
-    include Celluloid
+    include Actor
 
     attr_reader :worker_pool
 

@@ -1,8 +1,8 @@
-require "celluloid"
+require "tennis/actor"
 
 module Tennis
   class Worker
-    include Celluloid
+    include Actor
 
     attr_accessor :worker_id
 
@@ -12,7 +12,7 @@ module Tennis
 
     def work(task)
       # Send the current working thread to the pool.
-      @pool.register_thread(worker_id, Thread.current)
+      @pool.async.register_thread(worker_id, Thread.current)
 
       ack = true
       begin

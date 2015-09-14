@@ -1,13 +1,13 @@
 require "thread"
-require "celluloid"
 
+require "tennis/actor"
 require "tennis/worker"
 
 module Tennis
   class Shutdown < StandardError ; end
 
   class WorkerPool
-    include Celluloid
+    include Actor
 
     trap_exit :worker_died
 
