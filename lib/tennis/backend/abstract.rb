@@ -24,6 +24,11 @@ module Tennis
         raise NotImplementedError
       end
 
+      # Requeue a Task that haven't been acked.
+      def requeue(task)
+        raise NotImplementedError
+      end
+
     end
   end
 end
