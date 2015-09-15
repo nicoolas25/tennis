@@ -44,13 +44,12 @@ module Tennis
     def work_done(task)
       @pending_tasks.delete(task)
       @threads.delete(task.worker.worker_id)
+      @workers << task.worker if task.worker.alive?
 
       # If done and there is no more pending tasks, we can shutdown. It also
       # means that every workers are in que @workers queue.
       if done? && @pending_tasks.empty?
         shutdown
-      elsif task.worker.alive?
-        @workers << task.worker
       end
     end
 
@@ -60,7 +59,7 @@ module Tennis
 
     def worker_died(worker, reason)
       @threads.delete(worker.worker_id)
-      @pending_task.delete_if { |task| task.worker == worker }
+      @pending_tasks.delete_if { |task| task.worker == worker }
       start_worker unless reason.is_a?(Shutdown)
     end
 

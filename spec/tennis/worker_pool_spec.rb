@@ -9,6 +9,15 @@ class MyJob
 end
 
 RSpec.describe Tennis::WorkerPool do
+  before do
+    # Keep every instance of Tennis::Worker in the workers array.
+    allow(Tennis::Worker).to receive(:new_link) do |*args|
+      Tennis::Worker.new(*args).tap do |worker|
+        workers << worker
+      end
+    end
+  end
+
   describe "initialization process" do
     it "starts 2 (concurrency value) workers" do
       expect(Tennis::Worker).
@@ -21,10 +30,10 @@ RSpec.describe Tennis::WorkerPool do
   describe "the work flow" do
     subject(:work) { instance.work(task) }
 
+    before { instance }
+
     it "dispatches the task to a worker" do
-      expect_any_instance_of(Tennis::Worker).
-        to receive(:work).with(task).
-        and_call_original
+      expect(workers.first).to receive(:work).with(task).and_call_original
       work
     end
 
@@ -36,14 +45,11 @@ RSpec.describe Tennis::WorkerPool do
 
     context "when the pool had been stopped" do
       before do
-        # Prevents the pool to shutdown and remove its workers.
-        allow(instance).to receive(:shutdown)
-
         instance.stop(timeout: nil)
       end
 
       it "doesn't dispatches the task to a worker" do
-        expect_any_instance_of(Tennis::Worker).to_not receive(:work)
+        workers.each { |worker| expect(worker).to_not receive(:work) }
         work
       end
 
@@ -58,15 +64,22 @@ RSpec.describe Tennis::WorkerPool do
       subject(:work_done) { instance.work_done(task) }
 
       before do
-        # Prevents the task to fully complete
-        allow_any_instance_of(Tennis::Worker).to receive(:notifies_work_done)
+        instance
+
+        # Prevents the tasks to fully complete
+        workers.each { |worker| allow(worker).to receive(:notifies_work_done) }
 
         tasks.each { |task| instance.work(task) }
         instance.stop(timeout: nil)
       end
 
-      it "shutdowns the pool" do
-        expect(instance).to receive(:shutdown)
+      it "terminates all the workers" do
+        workers.each { |worker| expect(worker).to receive(:terminate) }
+        work_done
+      end
+
+      it "notifies the condition that the pool is down" do
+        expect(condition).to receive(:signal)
         work_done
       end
 
@@ -74,23 +87,102 @@ RSpec.describe Tennis::WorkerPool do
         let(:tasks) { [task, get_task] }
 
         it "keeps the pool running" do
-          expect(instance).to_not receive(:shutdown)
+          workers.each { |worker| expect(worker).to_not receive(:terminate) }
+          expect(condition).to_not receive(:signal)
           work_done
         end
       end
+
+      let(:tasks) { [task] }
     end
 
-    let(:backend) { Tennis::Backend::Memory.new(logger: nil) }
-    let(:tasks) { [task] }
-    let(:task) { get_task }
+  end
 
-    def get_task
-      backend.enqueue(job: MyJob.new, method: "run", args: [])
-      backend.receive(job_classes: [MyJob])
+  describe "the death of a worker" do
+    subject(:worker_died) { instance.worker_died(worker, exception) }
+
+    before do
+      instance
+
+      # Prevents the worker to fully complete
+      allow(worker).to receive(:notifies_work_done)
+
+      instance.work(task)
+    end
+
+    it "starts a new worker" do
+      expect(Tennis::Worker).to receive(:new_link).with(instance)
+      worker_died
+    end
+
+    context "with a shutdown error" do
+      let(:exception) { Tennis::Shutdown.new }
+
+      it "doesn't start a new worker" do
+        expect(Tennis::Worker).to_not receive(:new_link)
+        worker_died
+      end
+    end
+
+    let(:exception) { StandardError.new }
+    let(:worker) { workers.first }
+  end
+
+  describe "the stop procedure" do
+    subject(:stop) { instance.stop(timeout: timeout) }
+
+    context "with no timeout" do
+      let(:timeout) { nil }
+
+      context "with no pending tasks" do
+        it "terminates all the workers" do
+          workers.each { |worker| expect(worker).to receive(:terminate) }
+          stop
+        end
+
+        it "notifies the condition that the pool is down" do
+          expect(condition).to receive(:signal)
+          stop
+        end
+      end
+
+      context "with pending tasks" do
+        before do
+          instance
+
+          # Prevents the worker to fully complete
+          allow(workers.first).to receive(:notifies_work_done)
+
+          instance.work(task)
+        end
+
+        it "does not terminates any of the workers" do
+          workers.each { |worker| expect(worker).to_not receive(:terminate) }
+          stop
+        end
+
+        it "doesn't notify the condition that the pool is down" do
+          expect(condition).to_not receive(:signal)
+          stop
+        end
+
+      end
+    end
+
+    context "with a timeout" do
+      let(:timeout) { 0 }
     end
   end
 
   let(:instance) { described_class.new(condition, options) }
   let(:condition) { double(signal: true) }
   let(:options) { { concurrency: 2 } }
+  let(:backend) { Tennis::Backend::Memory.new(logger: nil) }
+  let(:task) { get_task }
+  let(:workers ) { [] }
+
+  def get_task
+    backend.enqueue(job: MyJob.new, method: "run", args: [])
+    backend.receive(job_classes: [MyJob])
+  end
 end
