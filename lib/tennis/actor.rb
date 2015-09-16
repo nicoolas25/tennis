@@ -35,6 +35,7 @@ module Tennis
       end
     end
 
+    # :nocov:
     def self.included(klass)
       if $TESTING
         klass.include InstanceMethods
@@ -43,5 +44,6 @@ module Tennis
         klass.include Celluloid
       end
     end
+    # :nocov:
   end
 end

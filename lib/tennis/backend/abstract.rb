@@ -8,6 +8,8 @@ module Tennis
         @logger = logger
       end
 
+      # :nocov:
+
       # Creates and enqueues a Task.
       def enqueue(job:, method:, args:, delay: nil)
         raise NotImplementedError
@@ -28,6 +30,8 @@ module Tennis
       def requeue(task)
         raise NotImplementedError
       end
+
+      # :nocov:
 
     end
   end
