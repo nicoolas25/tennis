@@ -15,6 +15,7 @@ module Tennis
         @task_id = 0
         @queue = []
         @acked_tasks = []
+        @acked_history_size = kwargs.fetch(:acked_history_size, 10)
       end
 
       def enqueue(job:, method:, args:, delay: nil)
@@ -40,7 +41,8 @@ module Tennis
 
       def ack(task)
         @mutex.synchronize do
-          acked_tasks << task
+          acked_tasks.unshift task
+          acked_tasks.pop if acked_tasks.size > @acked_history_size
         end
       end
 
