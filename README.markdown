@@ -40,6 +40,8 @@ bundle exec tennis --concurrency 4 --require ./config/application.rb --jobs "MyJ
 ## Usage
 
 ``` ruby
+MINUTES = 60
+
 class MyJob
   include Tennis::Job
 
@@ -53,6 +55,11 @@ my_job_instance.async.my_method(1, 2, 3)
 
 # Will print in your `tennis` process:
 # => [1, 2, 3].sum = 6
+
+my_job_instance.async_in(2 * MINUTES).my_method(4, 5, 6)
+
+# Will print, in approximatively two minutes, in your `tennis` process:
+# => [4, 5, 6].sum = 15
 ```
 
 The `my_method`'s arguments can be quite complex depending on your backend support.
