@@ -1,12 +1,14 @@
+require "celluloid/condition"
+
 require "tennis/actor"
 require "tennis/fetcher"
-require "tennis/manager"
+require "tennis/worker_pool"
 
 module Tennis
   class Launcher
     include Actor
 
-    attr_reader :manager, :fetcher
+    attr_reader :worker_pool, :fetcher
 
     def initialize(options)
       @stop_condition = Celluloid::Condition.new

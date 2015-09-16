@@ -6,6 +6,7 @@ module Tennis
   def self.configure
     @config = Configuration.new
     yield @config if block_given?
+    @config.finalize!
   end
 
   def self.config

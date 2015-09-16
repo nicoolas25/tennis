@@ -14,8 +14,8 @@ module Tennis
       options = DEFAULT_OPTIONS.dup
       OptionParser.new do |opts|
         opts.banner = "Usage: tennis [options]"
-        opts.on("-j", "--job JOBS", "List of the job classes to handle") do |jobs|
-          options[:job_class_names] = classes.split(",")
+        opts.on("-j", "--jobs JOBS", "List of the job classes to handle") do |jobs|
+          options[:job_class_names] = jobs.split(",")
         end
         opts.on("-c", "--concurrency COUNT", "The number of concurrent jobs") do |concurrency|
           options[:concurrency] = concurrency.to_i
