@@ -24,7 +24,7 @@ module Tennis
     end
 
     def _store(**kwargs)
-      Tennis.config.adapter.store(**kwargs.merge(delay: @delay))
+      Tennis.config.backend.store(**kwargs.merge(delay: @delay))
     end
   end
 end
