@@ -24,10 +24,6 @@ module Tennis
           options[:require] ||= []
           options[:require] << path
         end
-        opts.on("-x", "--execute CODE", "Execute code before starting") do |code|
-          options[:execute] ||= []
-          options[:execute] << code
-        end
       end.parse!
       new(options).start
     end
@@ -38,7 +34,6 @@ module Tennis
 
     def start
       require_paths
-      execute_code
       start_launcher
     end
 
@@ -47,11 +42,6 @@ module Tennis
     def require_paths
       return unless requires = @options[:require]
       requires.each { |path| require path } if @options[:require]
-    end
-
-    def execute_code
-      return unless codes = @options[:execute]
-      codes.each { |code| eval code }
     end
 
     def start_launcher
