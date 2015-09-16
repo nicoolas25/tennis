@@ -21,12 +21,14 @@ module Tennis
       end
     end
 
-    def done?
-      @done
-    end
-
     def done!
       @done = true
+    end
+
+    private
+
+    def done?
+      @done
     end
 
   end

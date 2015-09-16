@@ -13,6 +13,10 @@ module Tennis
       DEFAULT.merge(opts).each do |name, value|
         __send__("#{name}=", value)
       end
+
+      unless backend
+        raise "You must specify a backend during the configuration"
+      end
     end
 
   end
