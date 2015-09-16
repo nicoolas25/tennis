@@ -1,7 +1,10 @@
 module Tennis
   class Action
+
+    attr_reader :_receiver
+
     def initialize(receiver, delay: nil)
-      @receiver = receiver
+      @_receiver = receiver
       @delay = delay
       _create_methods!
     end
@@ -11,17 +14,13 @@ module Tennis
     def _create_methods!
       _methods.each do |method|
         self.define_singleton_method(method) do |*arguments|
-          _store(job: @receiver, method: method, args: arguments)
+          _store(job: @_receiver, method: method, args: arguments)
         end
       end
     end
 
     def _methods
-      if @receiver.kind_of?(Class)
-        @receiver.methods(false).map(&:to_s)
-      else
-        @receiver.class.instance_methods(false).map(&:to_s)
-      end
+      @_receiver.class.instance_methods(false).map(&:to_s)
     end
 
     def _store(**kwargs)

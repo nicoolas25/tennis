@@ -18,6 +18,7 @@ module Tennis
       end
 
       def after(interval)
+        yield
       end
 
       def alive?

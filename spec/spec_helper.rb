@@ -4,7 +4,9 @@ require "pry"
 require "tennis"
 
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start do
+  add_filter { |source| source.filename =~ %r(/spec/.*\.rb$) }
+end
 
 require "codeclimate-test-reporter"
 CodeClimate::TestReporter.start
