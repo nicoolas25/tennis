@@ -1,8 +1,8 @@
 require "json"
 
 module Tennis
-  module Serializer
-    class Generic
+  module Backend
+    class Serializer
 
       RECOGNIZED_TYPES = {
         active_record: "active_record".freeze,

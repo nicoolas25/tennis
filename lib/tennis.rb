@@ -1,16 +1,7 @@
-require "sneakers"
+require "tennis/configuration"
 
 module Tennis
-  module Worker
-    autoload :Deferable, "tennis/worker/deferable"
-    autoload :Generic,   "tennis/worker/generic"
-  end
-
-  module Serializer
-    autoload :Generic, "tennis/serializer/generic"
-  end
-
-  autoload :Configuration, "tennis/configuration"
+  autoload :Job, "tennis/job"
 
   def self.configure
     @config = Configuration.new
@@ -20,6 +11,10 @@ module Tennis
 
   def self.config
     @config or fail "You must run Tennis.configure before accessing the configuration"
+  end
+
+  def self.logger
+    @config.logger
   end
 
 end

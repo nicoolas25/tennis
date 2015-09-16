@@ -1,14 +1,13 @@
+require "logger"
+
 module Tennis
   class Configuration
     DEFAULT = {
       async: true,
-      exchange: "tennis",
-      workers: 4,
-      logger: STDOUT,
-      sneakers_options: {},
+      logger: Logger.new(STDOUT),
     }.freeze
 
-    attr_accessor :async, :exchange, :workers, :logger, :sneakers_options
+    attr_accessor :async, :logger, :backend
 
     def initialize(opts = {})
       DEFAULT.merge(opts).each do |name, value|
@@ -17,11 +16,7 @@ module Tennis
     end
 
     def finalize!
-      Sneakers.configure({
-        exchange: exchange,
-        workers: workers,
-        log: logger,
-      }.merge(sneakers_options))
+      raise "You must specify a backend during the configuration" unless backend
     end
 
   end
