@@ -1,8 +1,5 @@
-require "celluloid/condition"
-
 require "tennis"
 require "tennis/backend/memory"
-require "tennis/worker_pool"
 
 logger = Logger.new(STDOUT)
 logger.level = Logger::DEBUG
@@ -21,6 +18,15 @@ class Job
   end
 end
 
+#
+# Manually process the job
+#
+
+puts "==== Manually process the job ===="
+
+require "tennis/worker_pool"
+require "celluloid/condition"
+
 # Instanciate a job and add the sum to the job to do.
 job = Job.new
 job.async.sum(1, 2, 3)
@@ -33,11 +39,23 @@ stop = Celluloid::Condition.new
 pool = Tennis::WorkerPool.new(stop, concurrency: 2)
 pool.async.work(task)
 
-# Print some message to show that the current thread isn't waiting.
-puts "I ordered a task, I'm now waiting for it to be done..."
-
 # Stop the pool of workers and wait for it to be stopped properly.
 pool.async.stop
 stop.wait
 
-puts "Exiting the program!"
+#
+# Using the Tennis::Launcher
+#
+
+puts "==== Using the Tennis::Launcher ===="
+
+require "tennis/launcher"
+
+# Instanciate a job and add the sum to the job to do.
+job = Job.new
+job.async.sum(2, 3, 4)
+
+# Create start and stop the launcher.
+launcher = Tennis::Launcher.new(concurrency: 2, job_classes: [Job])
+launcher.async.start
+launcher.async.stop
