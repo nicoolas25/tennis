@@ -16,7 +16,7 @@ RSpec.describe Tennis::Action do
 
     it "stores in the Tennis.config.backend a new job" do
       expect(Tennis.config.backend)
-        .to receive(:store)
+        .to receive(:enqueue)
         .with(job: job, method: "run", args: [], delay: nil)
       run
     end

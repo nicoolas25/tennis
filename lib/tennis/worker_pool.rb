@@ -35,15 +35,14 @@ module Tennis
 
       # Consider the task as accepted. Wait for a worker to process it.
       @pending_tasks << task
-      @workers.pop.tap do |worker|
-        task.worker = worker
-        worker.async.work(task)
-      end
+      worker = @workers.pop
+      task.worker = worker
+      worker.async.work(task)
     end
 
     def work_done(task)
       @pending_tasks.delete(task)
-      @threads.delete(task.worker.worker_id)
+      @threads.delete(task.worker.object_id)
       @workers << task.worker if task.worker.alive?
 
       # If done and there is no more pending tasks, we can shutdown. It also
@@ -58,7 +57,7 @@ module Tennis
     end
 
     def worker_died(worker, reason)
-      @threads.delete(worker.worker_id)
+      @threads.delete(worker.object_id)
       @pending_tasks.delete_if { |task| task.worker == worker }
       start_worker unless reason.is_a?(Shutdown)
     end

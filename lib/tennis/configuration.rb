@@ -1,4 +1,5 @@
 require "logger"
+require "celluloid"
 
 module Tennis
   class Configuration
@@ -17,6 +18,9 @@ module Tennis
 
     def finalize!
       raise "You must specify a backend during the configuration" unless backend
+
+      # Set the celluloid logger.
+      Celluloid.logger = logger
     end
 
   end
