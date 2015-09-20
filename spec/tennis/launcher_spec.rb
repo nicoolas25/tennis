@@ -23,17 +23,22 @@ RSpec.describe Tennis::Launcher do
         with(pool, options)
       instance
     end
+
+    it "sets the fetcher attributes" do
+      expect(pool).to receive(:fetcher=).with(fetcher)
+      instance
+    end
   end
 
   describe "the starting flow" do
     subject(:start) { instance.start }
 
     before do
-      allow(fetcher).to receive(:async).and_return(fetcher)
+      allow(pool).to receive(:async).and_return(pool)
     end
 
-    it "starts the fetcher" do
-      expect(fetcher).to receive(:start)
+    it "starts the worker pool" do
+      expect(pool).to receive(:start)
       start
     end
   end
@@ -70,6 +75,6 @@ RSpec.describe Tennis::Launcher do
   let(:instance) { described_class.new(options) }
   let(:options) { { job_classes: [MyJob], concurrency: 2 } }
   let(:fetcher) { double("Tennis::Fetcher", terminate: true, alive?: true, done!: true) }
-  let(:pool) { double("Tennis::WorkerPool", terminate: true, alive?: true, stop: true) }
+  let(:pool) { double("Tennis::WorkerPool", terminate: true, alive?: true, stop: true, :fetcher= => true) }
   let(:cond) { double("Celluloid::Condition", wait: true) }
 end

@@ -14,10 +14,11 @@ module Tennis
       @stop_condition = Celluloid::Condition.new
       @worker_pool = WorkerPool.new_link(@stop_condition, options)
       @fetcher = Fetcher.new_link(worker_pool, options)
+      @worker_pool.fetcher = @fetcher
     end
 
     def start
-      fetcher.async.start
+      worker_pool.async.start
     end
 
     def stop

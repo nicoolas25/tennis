@@ -10,12 +10,17 @@ module Tennis
 
     trap_exit :worker_died
 
+    attr_accessor :fetcher
+
     def initialize(stop_condition, options)
       @stop_condition = stop_condition
       @size = options[:concurrency]
       @pending_tasks = []
       @threads = {}
       @workers = Queue.new
+    end
+
+    def start
       @size.times { start_worker }
     end
 
@@ -33,9 +38,8 @@ module Tennis
       # Do not accept new tasks if done.
       return task.requeue if done?
 
-      # Consider the task as accepted. Wait for a worker to process it.
       @pending_tasks << task
-      worker = @workers.pop
+      worker = @workers.pop(true)
       task.worker = worker
       worker.async.work(task)
     end
@@ -43,13 +47,11 @@ module Tennis
     def work_done(task)
       @pending_tasks.delete(task)
       @threads.delete(task.worker.object_id)
-      @workers << task.worker if task.worker.alive?
+      ready(task.worker) if task.worker.alive?
 
       # If done and there is no more pending tasks, we can shutdown. It also
       # means that every workers are in que @workers queue.
-      if done? && @pending_tasks.empty?
-        shutdown
-      end
+      shutdown if done? && @pending_tasks.empty?
     end
 
     def register_thread(worker_id, thread)
@@ -100,7 +102,12 @@ module Tennis
     def start_worker
       worker = Worker.new_link(current_actor)
       worker.worker_id = worker.object_id
+      ready(worker)
+    end
+
+    def ready(worker)
       @workers << worker
+      fetcher.async.fetch
     end
 
   end

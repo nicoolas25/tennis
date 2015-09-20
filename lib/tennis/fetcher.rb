@@ -13,11 +13,13 @@ module Tennis
       @done = false
     end
 
-    def start
+    def fetch
       return if done?
-      task = @backend.receive(job_classes: @job_classes)
-      worker_pool.async.work(task) if task
-      async.start
+      if task = @backend.receive(job_classes: @job_classes)
+        worker_pool.async.work(task)
+      else
+        async.fetch
+      end
     end
 
     def done!

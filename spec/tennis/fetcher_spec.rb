@@ -8,13 +8,14 @@ RSpec.describe Tennis::Fetcher do
     allow(backend).to receive(:receive)
   end
 
-  describe "the running loop" do
+  describe "fetching a job" do
     context "when the fetcher is done" do
       before { instance.done! }
 
       it "won't do anything" do
         expect(backend).to_not receive(:receive)
-        instance.start
+        expect(pool).to_not receive(:work)
+        instance.fetch
       end
     end
 
@@ -24,11 +25,12 @@ RSpec.describe Tennis::Fetcher do
       end
 
       it "receives tasks from the backend" do
+        expect(pool).to receive(:work).with(task)
         expect(backend)
           .to receive(:receive)
           .with(job_classes: options[:job_classes])
-          .and_raise(StandardError.new("Don't loop during test"))
-        instance.start rescue nil
+          .and_return(task)
+        instance.fetch
       end
 
       context "when there is no task to do" do
@@ -41,7 +43,7 @@ RSpec.describe Tennis::Fetcher do
 
         it "loops until there is, then pool-work it" do
           expect(pool).to receive(:work).with(task).and_raise(StandardError)
-          instance.start rescue nil
+          instance.fetch rescue nil
         end
       end
     end

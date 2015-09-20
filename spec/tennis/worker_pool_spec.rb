@@ -14,19 +14,20 @@ RSpec.describe Tennis::WorkerPool do
     end
   end
 
-  describe "initialization process" do
+  describe "#start" do
     it "starts 2 (concurrency value) workers" do
       expect(Tennis::Worker).
-        to receive(:new_link).exactly(2).times.
+        to receive(:new_link).
+        exactly(2).times.
         and_call_original
-      instance
+      instance.start
     end
   end
 
   describe "the work flow" do
     subject(:work) { instance.work(task) }
 
-    before { instance }
+    before { instance.start }
 
     it "dispatches the task to a worker" do
       expect(workers.first).to receive(:work).with(task).and_call_original
@@ -60,7 +61,7 @@ RSpec.describe Tennis::WorkerPool do
       subject(:work_done) { instance.work_done(task) }
 
       before do
-        instance
+        instance.start
 
         # Prevents the tasks to fully complete
         workers.each { |worker| allow(worker).to receive(:notifies_work_done) }
@@ -98,7 +99,7 @@ RSpec.describe Tennis::WorkerPool do
     subject(:worker_died) { instance.worker_died(worker, exception) }
 
     before do
-      instance
+      instance.start
 
       # Prevents the worker to fully complete
       allow(worker).to receive(:notifies_work_done)
@@ -127,6 +128,8 @@ RSpec.describe Tennis::WorkerPool do
   describe "the stopping procedure" do
     subject(:stop) { instance.stop(timeout: timeout) }
 
+    before { instance.start }
+
     context "with no pending tasks" do
       it "terminates all the workers" do
         workers.each { |worker| expect(worker).to receive(:terminate) }
@@ -141,8 +144,6 @@ RSpec.describe Tennis::WorkerPool do
 
     context "with pending tasks" do
       before do
-        instance
-
         # Prevents the worker to fully complete
         allow(workers.first).to receive(:notifies_work_done)
 
@@ -190,13 +191,24 @@ RSpec.describe Tennis::WorkerPool do
     let(:timeout) { nil }
   end
 
-  let(:instance) { described_class.new(condition, options) }
   let(:condition) { double(signal: true) }
   let(:options) { { concurrency: 2 } }
   let(:backend) { Tennis::Backend::Memory.new(logger: nil) }
   let(:task) { get_task }
   let(:workers ) { [] }
   let(:worker_threads) { {} }
+
+  let(:fetcher) do
+    double("Tennis::Fetcher", fetch: true).tap do |fetcher|
+      allow(fetcher).to receive(:async).and_return(fetcher)
+    end
+  end
+
+  let(:instance) do
+    described_class.new(condition, options).tap do |pool|
+      pool.fetcher = fetcher
+    end
+  end
 
   def get_task
     backend.enqueue(job: MyJob.new, method: "run", args: [])
