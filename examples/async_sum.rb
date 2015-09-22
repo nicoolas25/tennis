@@ -13,6 +13,7 @@ class Job
   include Tennis::Job
 
   def sum(*numbers)
+    sleep 0.4
     total = numbers.inject(&:+)
     puts "Sum #{numbers} => #{total}"
   end
