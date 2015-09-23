@@ -66,6 +66,12 @@ The same goes for the `MyJob`'s instance.
 
 With the `Tennis::Backend::Memory` backend, you can use anything and it will be kept as it is.
 
+## Backends
+
+- `Tennis::Backend::Memory` _à la_ [sucker_punch][sucker_punch]
+- `Tennis::Backend::Redis` to use as a background job (see [tennis-jobs-redis][tennis-jobs-redis])
+- `Tennis::Backend::Rabbit` to use as a background job (comming soon)
+
 ## Testing
 
 This section is waiting to beeing written.
@@ -73,3 +79,5 @@ This section is waiting to beeing written.
 
 [sidekiq]: https://github.com/mperham/sidekiq
 [sucker_punch]: https://github.com/brandonhilkert/sucker_punch
+[tennis-jobs-redis]: https://github.com/nicoolas25/tennis-redis
+[tennis-jobs-rmq]: https://github.com/nicoolas25/tennis-rmq
