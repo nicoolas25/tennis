@@ -14,17 +14,15 @@ Install the gem in your Gemfile:
 
 ``` ruby
 gem "tennis-jobs"
-gem "tennis-jobs-redis" # Not available at the moment
+gem "tennis-jobs-redis"
 ```
 
 Configure Tennis in your `config/application.rb` (or any other file):
 
 ``` ruby
 Tennis.configure do |config|
-  config.backend Tennis::Backend::Redis.new(redis_url)
-
-  # require "logger"
-  # config.logger = Logger.new(STDOUT)
+  config.logger = Logger.new(STDOUT)
+  config.backend Tennis::Backend::Redis.new(logger: config.logger, url: redis_url)
 end
 ```
 
@@ -46,7 +44,7 @@ class MyJob
   include Tennis::Job
 
   def my_method(*args)
-    puts "=> #{args}.sum = args.inject(0, &:+)"
+    puts "=> #{args}.sum = args.inject(&:+)"
   end
 end
 
@@ -56,6 +54,7 @@ my_job_instance.async.my_method(1, 2, 3)
 # Will print in your `tennis` process:
 # => [1, 2, 3].sum = 6
 
+# Comming soon...
 my_job_instance.async_in(2 * MINUTES).my_method(4, 5, 6)
 
 # Will print, in approximatively two minutes, in your `tennis` process:

@@ -14,15 +14,17 @@ module Tennis
     end
 
     # Dump a Job instance into a simple hash.
+    # You usually want to implement this in your subclasses.
     def job_dump
-      raise NotImplementedError
+      nil
     end
 
     module ClassMethods
 
       # Build a Job instance from a simple hash.
+      # You usually want to implement this in your subclasses.
       def job_load(hash)
-        raise NotImplementedError
+        new
       end
 
     end
