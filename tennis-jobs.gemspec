@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Nicolas ZERMATI"]
   spec.email         = ["nicoolas25@gmail.com"]
 
-  spec.summary       = %q{A small background job library on top of sneakers.}
-  spec.description   = %q{A small background job library on top of sneakers.}
+  spec.summary       = %q{A backend agnostic, actor based, background jobs library.}
+  spec.description   = %q{A backend agnostic, actor based, background jobs library.}
   spec.homepage      = "https://github.com/nicoolas25/tennis"
   spec.license       = "MIT"
 

@@ -2,12 +2,13 @@ module Tennis
   module Backend
     class Task
 
-      attr_reader :job, :method, :args
-      attr_accessor :worker, :task_id
+      attr_reader :task_id, :job, :method, :args, :meta
+      attr_accessor :worker
 
-      def initialize(backend, task_id, job, method, args)
+      def initialize(backend, task_id, job, method, args, meta = {})
         @backend, @task_id, @acked = backend, task_id, false
         @job, @method, @args = job, method, args
+        @meta = meta
       end
 
       def execute

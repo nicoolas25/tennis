@@ -5,8 +5,9 @@ module Tennis
     class Serializer
 
       RECOGNIZED_TYPES = {
-        active_record: "active_record".freeze,
-        class:         "class".freeze,
+        findable: "findable".freeze,
+        class:    "class".freeze,
+        job:      "job".freeze,
       }.freeze
 
       def load(message)
@@ -30,11 +31,17 @@ module Tennis
               _type: RECOGNIZED_TYPES[:class],
               _class: object.to_s
             }
-          when :active_record
+          when :findable
             {
-              _type: RECOGNIZED_TYPES[:active_record],
+              _type: RECOGNIZED_TYPES[:findable],
               _class: object.class.to_s,
               _id: object.id,
+            }
+          when :job
+            {
+              _type: RECOGNIZED_TYPES[:job],
+              _class: object.class.to_s,
+              _dump: object.job_dump,
             }
           else
             fail "Unexpected type: #{type} when visiting object"
@@ -49,9 +56,12 @@ module Tennis
             object
           when :class
             Object.const_get(object["_class"])
-          when :active_record
+          when :findable
             klass = Object.const_get(object["_class"])
             klass.find(object["_id"])
+          when :job
+            klass = Object.const_get(object["_class"])
+            klass.job_load(object["_dump"])
           else
             fail "Unexpected type: #{type} when visiting object"
           end
@@ -65,8 +75,10 @@ module Tennis
       def visit_any(object, block)
         if object.kind_of?(Array)
           visit_array(object, block)
-        elsif is_active_record?(object)
-          block.call(:active_record, object)
+        elsif is_job?(object)
+          block.call(:job, object)
+        elsif is_findable?(object)
+          block.call(:findable, object)
         elsif is_class?(object)
           block.call(:class, object)
         elsif object.kind_of?(Hash)
@@ -86,14 +98,19 @@ module Tennis
         end
       end
 
-      def is_active_record?(object)
-        object.respond_to?(:attributes) ||
-        object.is_a?(Hash) && object["_type"] == RECOGNIZED_TYPES[:active_record]
+      def is_findable?(object)
+        (object.class.respond_to?(:find) && object.respond_to?(:id)) ||
+        (object.is_a?(Hash) && object["_type"] == RECOGNIZED_TYPES[:findable])
       end
 
       def is_class?(object)
         object.is_a?(Class) ||
-        object.is_a?(Hash) && object["_type"] == RECOGNIZED_TYPES[:class]
+        (object.is_a?(Hash) && object["_type"] == RECOGNIZED_TYPES[:class])
+      end
+
+      def is_job?(object)
+        object.is_a?(Tennis::Job) ||
+        (object.is_a?(Hash) && object["_type"] == RECOGNIZED_TYPES[:job])
       end
 
     end
