@@ -8,13 +8,15 @@ and switch to separated processes later using another backend.
 <a target="_blank" href="https://codeclimate.com/github/nicoolas25/tennis/coverage"><img src="https://codeclimate.com/github/nicoolas25/tennis/badges/coverage.svg" /></a>
 <a target="_blank" href="https://rubygems.org/gems/tennis-jobs"><img src="https://badge.fury.io/rb/tennis-jobs.svg" /></a>
 
+This work has been partly made possible because of R&D time that is given to me by my employer: [Tigerlily][tigerlily].
+
 ## Configuration
 
 Install the gem in your Gemfile:
 
 ``` ruby
 gem "tennis-jobs"
-gem "tennis-jobs-redis"
+gem "tennis-jobs-redis" # or "tennis-jobs-rmq" or another backend
 ```
 
 Configure Tennis in your `config/application.rb` (or any other file):
@@ -70,7 +72,7 @@ With the `Tennis::Backend::Memory` backend, you can use anything and it will be 
 
 - `Tennis::Backend::Memory` _à la_ [sucker_punch][sucker_punch]
 - `Tennis::Backend::Redis` to use as a background job (see [tennis-jobs-redis][tennis-jobs-redis])
-- `Tennis::Backend::Rabbit` to use as a background job (comming soon)
+- `Tennis::Backend::Rabbit` to use as a background job (see [tennis-jobs-rmq][tennis-jobs-rmq])
 
 ## Testing
 
@@ -81,3 +83,4 @@ This section is waiting to beeing written.
 [sucker_punch]: https://github.com/brandonhilkert/sucker_punch
 [tennis-jobs-redis]: https://github.com/nicoolas25/tennis-redis
 [tennis-jobs-rmq]: https://github.com/nicoolas25/tennis-rmq
+[tigerlily]: http://tigerlilyapps.com/
